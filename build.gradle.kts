@@ -1,6 +1,7 @@
 plugins {
   idea
   scala
+  maven
 }
 
 repositories {
