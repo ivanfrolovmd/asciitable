@@ -8,7 +8,6 @@ import AsciiTable._
 
 class AsciiTable {
   private var header: Option[Seq[String]] = None
-  private var colWidths: Option[Seq[Int]] = None
   private val streamBuilder               = new StreamBuilder[Seq[String]]
   private var width: Option[Int]          = None
 
@@ -16,8 +15,6 @@ class AsciiTable {
   def header(columnNames: TraversableOnce[String]): AsciiTable         = { header = Some(columnNames.toSeq); this }
   def row(values: String*): AsciiTable                                 = { streamBuilder += values; this }
   def row(values: TraversableOnce[String]): AsciiTable                 = { streamBuilder += values.toSeq; this }
-  def columnWidths(widths: Int*): AsciiTable                           = { colWidths = Some(widths); this }
-  def columnWidths(widths: TraversableOnce[Int]): AsciiTable           = { colWidths = Some(widths.toSeq); this }
   def rows(rows: TraversableOnce[TraversableOnce[String]]): AsciiTable = { streamBuilder ++= rows.map(_.toSeq); this }
   def width(value: Int): AsciiTable                                    = { width = Some(value); this }
 
@@ -30,7 +27,6 @@ class AsciiTable {
   }
 
   def write(out: java.io.OutputStream = System.out): Unit = out.synchronized {
-//    for (w <- width; cw <- colWidths) yield cw.sum.ensuring(_ <= w)
     val w = new PrintWriter(out)
     if (rows.isEmpty) {
       w.println("<Empty>")
