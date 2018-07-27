@@ -1,4 +1,4 @@
-![JitPack](https://jitpack.io/v/ivanfrolovmd/asciitable.svg "Jit Pack Build Status")
+[![JitPack](https://jitpack.io/v/ivanfrolovmd/asciitable.svg "Jit Pack Build Status")](https://jitpack.io/#ivanfrolovmd/asciitable)
 
 # ASCII Table
 
