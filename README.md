@@ -34,7 +34,7 @@ allprojects {
 }
 
 dependencies {
-  compile 'com.github.ivanfrolovmd:asciitable:v0.0.2'
+  compile 'com.github.ivanfrolovmd:asciitable:0.0.3'
 }
 ```
 
@@ -50,12 +50,12 @@ dependencies {
 <dependency>
   <groupId>com.github.ivanfrolovmd</groupId>
   <artifactId>asciitable</artifactId>
-  <version>v0.0.2</version>
+  <version>0.0.3</version>
 </dependency>
 ```
 
 ### SBT
 ```
 resolvers += "jitpack" at "https://jitpack.io"
-libraryDependencies += "com.github.ivanfrolovmd" % "asciitable" % "v0.0.2"
+libraryDependencies += "com.github.ivanfrolovmd" % "asciitable" % "0.0.3"
 ```
