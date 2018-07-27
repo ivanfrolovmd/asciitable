@@ -122,7 +122,35 @@ class AsciiTableTest extends FreeSpec with Matchers {
           |│12345│1234…│12345│→
           |└─────┴─────┴─────┘→
           |""".stripMargin
+    }
 
+    "should render small columns when in the right side of the table" in {
+      val str = "12345"
+      AsciiTable()
+        .width(15)
+        .columnMinWidth(5)
+        .header("h1", "h2", "h3", "h4", "h5")
+        .row("0", str * 3, "1", "22", "3")
+        .row("0", str * 3, "1", "22", "3")
+        .row("0", str * 3, "1", "22", "3")
+        .toString shouldBe
+        """┌─┬─────┬─┬──┐→
+          |│h│h2   │h│h4│→
+          |│1│     │3│  │→
+          |├─┼─────┼─┼──┤→
+          |│0│12345│1│22│→
+          |│ │12345│ │  │→
+          |│ │12345│ │  │→
+          |├─┼─────┼─┼──┤→
+          |│0│12345│1│22│→
+          |│ │12345│ │  │→
+          |│ │12345│ │  │→
+          |├─┼─────┼─┼──┤→
+          |│0│12345│1│22│→
+          |│ │12345│ │  │→
+          |│ │12345│ │  │→
+          |└─┴─────┴─┴──┘→
+          |""".stripMargin
     }
   }
 }
