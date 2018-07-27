@@ -7,6 +7,8 @@ import io.github.asciitable.AsciiTable._
 import scala.collection.immutable.Stream.StreamBuilder
 import Maths._
 
+import scala.language.postfixOps
+
 class AsciiTable {
   private var header: Option[Seq[String]] = None
   private val streamBuilder               = new StreamBuilder[Seq[String]]
@@ -127,16 +129,26 @@ class AsciiTable {
       val proportions    = medians.map(m => m.toDouble / mediansSum)
       val availableWidth = width - medians.length - 1
 
-      (proportions zip maximums)
-        .foldLeft((Seq.empty[Int], availableWidth, 1.0)) {
-          case ((ws, avWidth, avRatio), (colRatio, colMax)) =>
+      (proportions zip maximums zipWithIndex)
+        .sortBy(_._1._1) // sort by proportions ascending
+        .foldLeft((Seq.empty[(Int, Int)], availableWidth, 1.0)) {
+          // calculate actual apportioned widths
+          case ((ws, avWidth, avRatio), ((colRatio, colMax), ix)) =>
             val proportionalWidth = if (avRatio > 0) Math.ceil(avWidth * colRatio / avRatio).toInt else 0
             val minWidth          = columnMinWidth min colMax
             val actualWidth       = proportionalWidth max minWidth
-            if (actualWidth <= avWidth && avWidth > 0)
-              (ws :+ actualWidth, avWidth - actualWidth, avRatio - colRatio)
+            (ws :+ (actualWidth, ix), avWidth - actualWidth, avRatio - colRatio)
+        }
+        ._1
+        .sortBy(_._2) // sort by index
+        .map(_._1)
+        .foldLeft((Seq.empty[Int], availableWidth)) {
+          // cutoff at maxWidth
+          case ((ws, avWidth), colWidth) =>
+            if (colWidth <= avWidth)
+              (ws :+ colWidth, avWidth - colWidth)
             else
-              (ws :+ 0, 0, 0)
+              (ws :+ 0, 0)
         }
         ._1
     }
