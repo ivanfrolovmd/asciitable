@@ -3,10 +3,9 @@ package io.github.asciitable
 import java.io.{ByteArrayOutputStream, PrintWriter}
 
 import io.github.asciitable.AsciiTable._
+import io.github.asciitable.Maths._
 
 import scala.collection.immutable.Stream.StreamBuilder
-import Maths._
-
 import scala.language.postfixOps
 
 class AsciiTable {
@@ -134,9 +133,10 @@ class AsciiTable {
         .foldLeft((Seq.empty[(Int, Int)], availableWidth, 1.0)) {
           // calculate actual apportioned widths
           case ((ws, avWidth, avRatio), ((colRatio, colMax), ix)) =>
-            val proportionalWidth = if (avRatio > 0) Math.ceil(avWidth * colRatio / avRatio).toInt else 0
-            val minWidth          = columnMinWidth min colMax
-            val actualWidth       = proportionalWidth max minWidth
+            val proportionalWidth =
+              if (avRatio > 0 && avWidth > 0) Math.floor(avWidth * colRatio / avRatio).toInt else 0
+            val minWidth    = columnMinWidth min (1 max colMax)
+            val actualWidth = proportionalWidth max minWidth
             (ws :+ (actualWidth, ix), avWidth - actualWidth, avRatio - colRatio)
         }
         ._1
