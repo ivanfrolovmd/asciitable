@@ -172,12 +172,12 @@ object AsciiTable {
   }
   private object Ascii extends CharacterSet {
     val CornerCharacters: Position => (String, String, String) = {
-      case Top    => ("┌", "┬", "┐")
-      case Middle => ("├", "┼", "┤")
-      case Bottom => ("└", "┴", "┘")
+      case Top    => ("+", "+", "+")
+      case Middle => ("+", "+", "+")
+      case Bottom => ("+", "+", "+")
     }
-    val VerticalLine   = '│'
-    val HorizontalLine = '─'
+    val VerticalLine   = '|'
+    val HorizontalLine = '-'
     val NewLine        = '\n'
     val Ellipsis       = '»'
     val Blank          = ' '
