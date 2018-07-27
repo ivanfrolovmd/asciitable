@@ -1,3 +1,5 @@
+![JitPack](https://jitpack.io/v/ivanfrolovmd/asciitable.svg "Jit Pack Build Status")
+
 # ASCII Table
 
 This is a small library to display tables using ascii art.
