@@ -199,9 +199,9 @@ object AsciiTable {
     val DoubleHorizontalLine = '-'
     val HorizontalLine       = '-'
     val NewLine              = '\n'
-    val Ellipsis             = '»'
+    val Ellipsis             = '_'
     val Blank                = ' '
-    val Arrow                = '░'
+    val Arrow                = '@'
   }
   private object Unicode extends CharacterSet {
     val CornerCharacters: Position => (String, String, String, String) = {
