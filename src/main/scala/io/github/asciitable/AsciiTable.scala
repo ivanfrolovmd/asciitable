@@ -51,17 +51,17 @@ class AsciiTable {
   private def writeEmpty(pw: PrintWriter): Unit = pw.println(emptyMessage)
 
   private def writeTable(pw: PrintWriter): Unit = {
-    val widths              = calculateColumnSizes(width.getOrElse(DefaultWidth))
-    val horizontalSeparator = renderSeparator(widths, Middle)
+    val widths = calculateColumnSizes(width.getOrElse(DefaultWidth))
 
     pw.append(renderSeparator(widths, Top))
 
     header.foreach { head =>
       if (multiline) pw.append(renderMultiLineRow(widths)(head)) else pw.append(renderClippedRow(widths)(head))
-      pw.append(horizontalSeparator)
+      pw.append(renderSeparator(widths, HeaderBottom))
     }
 
-    val rowIt = rows.iterator
+    val rowIt               = rows.iterator
+    val horizontalSeparator = renderSeparator(widths, Middle)
     while (rowIt.hasNext) {
       val currentRow = rowIt.next().padTo(widths.size, "")
       pw.append(
@@ -76,11 +76,13 @@ class AsciiTable {
 
   private def renderOneLineRow(widths: Seq[Int])(row: Seq[String]): String = {
     val hasZeroWidthColumns = widths.contains(0)
-    val end                 = if (hasZeroWidthColumns) chars.arrowWithNewLine else chars.newLineString
+    val end =
+      if (hasZeroWidthColumns) chars.VerticalLine + chars.arrowWithNewLine
+      else chars.DoubleVerticalLine + chars.newLineString
     (row zip widths)
       .filter(_._2 > 0)
       .map { case (s, w) => s.padTo(w, chars.Blank) }
-      .mkString(chars.VerticalLine.toString, chars.VerticalLine.toString, chars.VerticalLine + end)
+      .mkString(chars.DoubleVerticalLine.toString, chars.VerticalLine.toString, end)
   }
 
   private def renderClippedRow(widths: Seq[Int])(row: Seq[String]): String = {
@@ -101,8 +103,9 @@ class AsciiTable {
   private def renderSeparator(widths: Seq[Int], position: Position): String = {
     val cc                  = chars.CornerCharacters(position)
     val hasZeroWidthColumns = widths.contains(0)
-    val end                 = if (hasZeroWidthColumns) chars.arrowWithNewLine else chars.newLineString
-    widths.filter(_ > 0).map(w => "".padTo(w, chars.HorizontalLine)).mkString(cc._1, cc._2, cc._3 + end)
+    val end                 = if (hasZeroWidthColumns) cc._4 + chars.arrowWithNewLine else cc._3 + chars.newLineString
+    val hor                 = if (position == Middle) chars.HorizontalLine else chars.DoubleHorizontalLine
+    widths.filter(_ > 0).map(w => "".padTo(w, hor)).mkString(cc._1, cc._2, end)
   }
 
   private def calculateColumnSizes(width: Int): Seq[Int] = {
@@ -172,8 +175,10 @@ object AsciiTable {
   def apply(): AsciiTable = new AsciiTable()
 
   private sealed trait CharacterSet {
-    val CornerCharacters: Position => (String, String, String)
+    val CornerCharacters: Position => (String, String, String, String)
+    val DoubleVerticalLine: Char
     val VerticalLine: Char
+    val DoubleHorizontalLine: Char
     val HorizontalLine: Char
     val NewLine: Char
     val Ellipsis: Char
@@ -183,36 +188,43 @@ object AsciiTable {
     lazy val arrowWithNewLine = s"$Arrow$NewLine"
   }
   private object Ascii extends CharacterSet {
-    val CornerCharacters: Position => (String, String, String) = {
-      case Top    => ("+", "+", "+")
-      case Middle => ("+", "+", "+")
-      case Bottom => ("+", "+", "+")
+    val CornerCharacters: Position => (String, String, String, String) = {
+      case Top          => ("+", "+", "+", "+")
+      case HeaderBottom => ("+", "+", "+", "+")
+      case Middle       => ("+", "+", "+", "+")
+      case Bottom       => ("+", "+", "+", "+")
     }
-    val VerticalLine   = '|'
-    val HorizontalLine = '-'
-    val NewLine        = '\n'
-    val Ellipsis       = '»'
-    val Blank          = ' '
-    val Arrow          = '░'
+    val DoubleVerticalLine   = '|'
+    val VerticalLine         = '|'
+    val DoubleHorizontalLine = '-'
+    val HorizontalLine       = '-'
+    val NewLine              = '\n'
+    val Ellipsis             = '_'
+    val Blank                = ' '
+    val Arrow                = '@'
   }
   private object Unicode extends CharacterSet {
-    val CornerCharacters: Position => (String, String, String) = {
-      case Top    => ("┌", "┬", "┐")
-      case Middle => ("├", "┼", "┤")
-      case Bottom => ("└", "┴", "┘")
+    val CornerCharacters: Position => (String, String, String, String) = {
+      case Top          => ("╔", "╤", "╗", "╕")
+      case HeaderBottom => ("╠", "╪", "╣", "╡")
+      case Middle       => ("╟", "┼", "╢", "┤")
+      case Bottom       => ("╚", "╧", "╝", "╛")
     }
-    val VerticalLine   = '│'
-    val HorizontalLine = '─'
-    val NewLine        = '\n'
-    val Ellipsis       = '…'
-    val Blank          = ' '
-    val Arrow          = '→'
+    val DoubleVerticalLine   = '║'
+    val VerticalLine         = '│'
+    val DoubleHorizontalLine = '═'
+    val HorizontalLine       = '─'
+    val NewLine              = '\n'
+    val Ellipsis             = '…'
+    val Blank                = ' '
+    val Arrow                = '→'
   }
 
   private sealed trait Position
-  private case object Top    extends Position
-  private case object Middle extends Position
-  private case object Bottom extends Position
+  private case object Top          extends Position
+  private case object HeaderBottom extends Position
+  private case object Middle       extends Position
+  private case object Bottom       extends Position
 
   private val DefaultWidth           = 80
   private val DefaultRowMaxHeight    = 7
