@@ -152,5 +152,30 @@ class AsciiTableTest extends FreeSpec with Matchers {
           |╚═╧═════╧═╧══╛→
           |""".stripMargin
     }
+
+    "should render arrows when the width is too small" in {
+      AsciiTable()
+        .width(5)
+        .row("one", "two", "three")
+        .row("one", "two", "three")
+        .row("one", "two", "three")
+        .toString shouldBe
+        """╔═╕→
+          |║o│→
+          |║n│→
+          |║e│→
+          |╟─┤→
+          |║o│→
+          |║n│→
+          |║e│→
+          |╟─┤→
+          |║o│→
+          |║n│→
+          |║e│→
+          |╚═╛→
+          |""".stripMargin
+
+      assertThrows[IllegalArgumentException](AsciiTable().width(4))
+    }
   }
 }

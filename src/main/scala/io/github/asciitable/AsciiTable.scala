@@ -65,12 +65,12 @@ final class AsciiTable {
   def rows(rows: TraversableOnce[TraversableOnce[String]]): AsciiTable = { streamBuilder ++= rows.map(_.toSeq); this }
 
   // configuration
-  def width(value: Int): AsciiTable            = { width = Some(value); this }
+  def width(value: Int): AsciiTable            = { require(value >= 5); width = Some(value); this }
   def multiline(value: Boolean): AsciiTable    = { multiline = value; this }
   def emptyMessage(value: String): AsciiTable  = { emptyMessage = value; this }
-  def rowMaxHeight(value: Int): AsciiTable     = { rowMaxHeight = value; this }
-  def columnMinWidth(value: Int): AsciiTable   = { columnMinWidth = value; this }
-  def sampleAtMostRows(value: Int): AsciiTable = { sampleRows = value; this }
+  def rowMaxHeight(value: Int): AsciiTable     = { require(value > 0); rowMaxHeight = value; this }
+  def columnMinWidth(value: Int): AsciiTable   = { require(value > 0); columnMinWidth = value; this }
+  def sampleAtMostRows(value: Int): AsciiTable = { require(value > 0); sampleRows = value; this }
   def useAscii(value: Boolean): AsciiTable     = { chars = if (value) Ascii else Unicode; this }
 
   private lazy val rows = streamBuilder.result()
