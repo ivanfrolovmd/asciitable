@@ -8,7 +8,45 @@ import io.github.asciitable.Maths._
 import scala.collection.immutable.Stream.StreamBuilder
 import scala.language.postfixOps
 
-class AsciiTable {
+/**
+  * <p>AsciiTable should be used as a builder by chaining building instructions and calling terminal <code>toString()</code>
+  * or <code>write()</code> functions in the end.
+  *
+  * <p>Usage example:
+  *
+  * <pre>
+  * AsciiTable()
+  *   .width(40) // screen width to fit table in
+  *   .multiline(true) // render rows across multiple lines
+  *   .columnMinWidth(7) // column width will be 7 characters or more
+  *   .rowMaxHeight(3) // clip cells at 3 lines
+  *   .header("N", "column", "column with long values")
+  *   .row("1", "value 1", "Lorem ipsum dolor sit amet, consectetur")
+  *   .row("2", "value 2", "Lorem ipsum dolor sit amet, consectetur" * 3)
+  *   .row("3", "foo", "bar")
+  *   .write()
+  * </pre>
+  *
+  * <p>renders:
+  *
+  * <pre>
+  * &lt;------------ 40 characters ----------->
+  * ╔═╤═══════╤════════════════════════════╗
+  * ║N│column │column with long values     ║
+  * ╠═╪═══════╪════════════════════════════╣
+  * ║1│value 1│Lorem ipsum dolor sit amet, ║
+  * ║ │       │consectetur                 ║
+  * ╟─┼───────┼────────────────────────────╢ ↑
+  * ║2│value 2│Lorem ipsum dolor sit amet, ║ |
+  * ║ │       │consecteturLorem ipsum dolor║ 3 lines max
+  * ║ │       │ sit amet, consecteturLorem…║ |
+  * ╟─┼───────┼────────────────────────────╢ ↓
+  * ║3│foo    │bar                         ║
+  * ╚═╧═══════╧════════════════════════════╝
+  *    &lt;- 7 ->
+  * </pre>
+  */
+final class AsciiTable {
   private var header: Option[Seq[String]] = None
   private val streamBuilder               = new StreamBuilder[Seq[String]]
   private var width: Option[Int]          = None
@@ -16,23 +54,24 @@ class AsciiTable {
   private var emptyMessage                = DefaultEmptyMessage
   private var rowMaxHeight                = DefaultRowMaxHeight
   private var columnMinWidth              = DefaultColumnMinWidth
-  private var columnMaxWidth              = DefaultColumnMaxWidth
   private var sampleRows                  = DefaultSampleRows
   private var chars: CharacterSet         = Unicode
 
+  // data builders
   def header(columnNames: String*): AsciiTable                         = { header = Some(columnNames); this }
   def header(columnNames: TraversableOnce[String]): AsciiTable         = { header = Some(columnNames.toSeq); this }
   def row(values: String*): AsciiTable                                 = { streamBuilder += values; this }
   def row(values: TraversableOnce[String]): AsciiTable                 = { streamBuilder += values.toSeq; this }
   def rows(rows: TraversableOnce[TraversableOnce[String]]): AsciiTable = { streamBuilder ++= rows.map(_.toSeq); this }
-  def width(value: Int): AsciiTable                                    = { width = Some(value); this }
-  def multiline(value: Boolean): AsciiTable                            = { multiline = value; this }
-  def emptyMessage(value: String): AsciiTable                          = { emptyMessage = value; this }
-  def rowMaxHeight(value: Int): AsciiTable                             = { rowMaxHeight = value; this }
-  def columnMinWidth(value: Int): AsciiTable                           = { columnMinWidth = value; this }
-  def columnMaxWidth(value: Int): AsciiTable                           = { columnMaxWidth = value; this }
-  def sampleAtMostRows(value: Int): AsciiTable                         = { sampleRows = value; this }
-  def useAscii(value: Boolean): AsciiTable                             = { chars = if (value) Ascii else Unicode; this }
+
+  // configuration
+  def width(value: Int): AsciiTable            = { width = Some(value); this }
+  def multiline(value: Boolean): AsciiTable    = { multiline = value; this }
+  def emptyMessage(value: String): AsciiTable  = { emptyMessage = value; this }
+  def rowMaxHeight(value: Int): AsciiTable     = { rowMaxHeight = value; this }
+  def columnMinWidth(value: Int): AsciiTable   = { columnMinWidth = value; this }
+  def sampleAtMostRows(value: Int): AsciiTable = { sampleRows = value; this }
+  def useAscii(value: Boolean): AsciiTable     = { chars = if (value) Ascii else Unicode; this }
 
   private lazy val rows = streamBuilder.result()
 
@@ -229,7 +268,6 @@ object AsciiTable {
   private val DefaultWidth           = 80
   private val DefaultRowMaxHeight    = 7
   private val DefaultColumnMinWidth  = 1
-  private val DefaultColumnMaxWidth  = 5
   private val DefaultWidthPercentile = .75
   private val DefaultEmptyMessage    = "<Empty>"
   private val DefaultSampleRows      = 50
